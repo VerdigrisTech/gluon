@@ -1,0 +1,33 @@
+{
+  "name": "gluon",
+  "version": "1.0.0",
+  "description": "Glues multiple webhooks",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "devServer": "npm run build && npm run server",
+    "server": "node dist/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Andrew Jo <andrew@verdigris.co>",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/chalk": "^2.2.0",
+    "@types/fs-extra": "^5.0.4",
+    "@types/lodash": "^4.14.116",
+    "@types/node": "^10.5.7",
+    "@types/request": "^2.47.1",
+    "@types/request-promise-native": "^1.0.15",
+    "typescript": "^3.0.1"
+  },
+  "dependencies": {
+    "@types/winston": "^2.3.9",
+    "chalk": "^2.4.1",
+    "express": "^4.16.3",
+    "fs-extra": "^7.0.0",
+    "lodash": "^4.17.10",
+    "request": "^2.87.0",
+    "request-promise-native": "^1.0.5",
+    "winston": "^3.0.0"
+  }
+}
