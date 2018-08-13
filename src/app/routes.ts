@@ -1,8 +1,11 @@
-import { Router } from "express";
-import * as projectController from "./controllers/project";
+import { Route } from "../router";
 
-const router = Router();
-
-router.get('/projects/:projectId/iterations/:iteration/analytics', projectController.iterationAnalytics);
-
-export default router;
+export default (route: Route) => {
+  route.namespace("pivotal_tracker", route => {
+    route.resources("projects", { only: ["index", "show"] }, route => {
+      route.resources("iterations", { only: ["index", "show"] }, route => {
+        route.get(":iterationId/analytics", "Analytics.index");
+      });
+    });
+  });
+};
