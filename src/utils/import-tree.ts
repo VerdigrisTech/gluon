@@ -16,10 +16,11 @@ export default function (path: string) {
     const onError = (err: Error) => reject(err);
     const onSuccess = () => {
       resolve(Promise.all(items.map(async item => {
-        return {
+        const resolvedModule: { path: string, module: any } = {
           path: item.path,
           module: await import(item.path)
         };
+        return resolvedModule;
       })));
     };
 
