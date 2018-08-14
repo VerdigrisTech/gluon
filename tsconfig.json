@@ -8,9 +8,7 @@
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "*": [
-        "node_modules/*"
-      ]
+      "@gluon/*": ["./src/*"],
     },
     "types": [
       "node"
