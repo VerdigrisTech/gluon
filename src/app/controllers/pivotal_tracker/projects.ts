@@ -36,10 +36,10 @@ export default class ProjectsController extends Controller {
     const apiEndpoint = `${this.baseRequestUrl}/projects/${projectId}`;
     const response = await request.get(apiEndpoint, this.requestOptions);
     const project = JSON.parse(response);
-    const attachments = {
+    const attachments = [{
       title: project.name,
       title_link: `https://www.pivotaltracker.com/n/projects/${project.id}`
-    };
+    }];
 
     res.json({ attachments });
   }
