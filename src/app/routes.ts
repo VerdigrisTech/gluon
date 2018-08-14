@@ -4,7 +4,7 @@ export default (route: Route) => {
   route.namespace("pivotal_tracker", route => {
     route.resources("projects", { only: ["index", "show"] }, route => {
       route.resources("iterations", { only: ["index", "show"] }, route => {
-        route.get(":iterationId/analytics", "Analytics.index");
+        route.get("analytics", "analytics.index");
       });
     });
   });
