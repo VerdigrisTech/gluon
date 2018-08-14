@@ -13,7 +13,7 @@ class WebWorker {
     this.workerId = workerId;
     this.config = config;
 
-    this.app = new App(this.config);
+    this.app = new App();
     this.app.listen();
     this.app.on("listening", () => {
       process.send({
