@@ -1,23 +1,25 @@
+import { NextFunction, Request, Response } from "express";
+
 export default class Controller {
   constructor() {}
 
-  public index() {
+  public index(req: Request, res: Response, next: NextFunction) {
     throw new Error("Index method is not implemented");
   }
 
-  public show() {
+  public show(req: Request, res: Response, next: NextFunction) {
     throw new Error("Show method is not implemented");
   }
 
-  public create() {
+  public create(req: Request, res: Response, next: NextFunction) {
     throw new Error("Create method is not implemented");
   }
 
-  public update() {
+  public update(req: Request, res: Response, next: NextFunction) {
     throw new Error("Update method is not implemented");
   }
 
-  public destroy() {
+  public destroy(req: Request, res: Response, next: NextFunction) {
     throw new Error("Destroy method is not implemented");
   }
 };
