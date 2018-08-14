@@ -53,7 +53,7 @@ export default class App extends EventEmitter {
         const methodName = last(route.controller.split("."));
         const controller = this.controller(route.path);
         const controllerMethod = controller[methodName];
-        routeMethod(route.path, controllerMethod);
+        routeMethod(route.path, controllerMethod.bind(controller));
       }
     });
   }
