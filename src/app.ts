@@ -11,14 +11,12 @@ import importTree from "@gluon/utils/import-tree";
 
 export default class App extends EventEmitter {
   protected app: Express;
-  protected config: Config;
   protected server: any;
   protected controllers: Map<string, Controller>;
   protected controllerPath: string = path.join(__dirname, "app", "controllers");
 
-  constructor(config: Config) {
+  constructor() {
     super();
-    this.config = config;
     this.app = express();
     this.initialize();
   }
@@ -65,8 +63,8 @@ export default class App extends EventEmitter {
   }
 
   public listen(port?: number, listenAddr?: string): void {
-    const _port = port || this.config.get("server.port");
-    const _listenAddr = listenAddr || this.config.get("server.listenAddr");
+    const _port = port || Config.get("server.port");
+    const _listenAddr = listenAddr || Config.get("server.listenAddr");
     this.server = this.app.listen(_port, _listenAddr);
     this.server.on("listening", () => this.emit("listening"))
   }

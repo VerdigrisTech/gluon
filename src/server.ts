@@ -15,7 +15,6 @@ const cpus = os.cpus().length;
 const webConcurrency = parseInt(process.env.WEB_CONCURRENCY);
 const processes = isNaN(webConcurrency) ? cpus : Math.min(webConcurrency, cpus);
 const workers = [];
-let serverConfig: Config;
 
 if (cluster.isMaster) {
   bootMaster();
@@ -49,7 +48,7 @@ async function bootMaster() {
       lifecycle: "boot",
       data: {
         workerId: i,
-        config: serverConfig.toJSON()
+        config: Config.toJSON()
       }
     });
   }
@@ -100,22 +99,5 @@ const printServerInfo = once(function (address, port) {
 }, this);
 
 async function loadConfig() {
-  const configPath = path.join(__dirname, "..", "config");
-  const configFiles = await fs.readdir(configPath);
-
-  const allConfig = await configFiles.map(file => {
-      return {
-        absoluteFile: path.join(configPath, file),
-        fileName: file,
-        key: path.parse(file).name
-      };
-    })
-    .reduce((mergedConfig, configFile) => {
-      console.error(`Loading ${configFile.key} configuration...`);
-      const config = {};
-      config[configFile.key] = require(configFile.absoluteFile);
-      return Object.assign(mergedConfig, config);
-    }, {});
-
-  serverConfig = new Config(allConfig);
+  await Config.load();
 }
