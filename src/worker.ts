@@ -1,7 +1,6 @@
 import chalk from "chalk";
-import http from "http";
-import App from "./app";
-import Config from "./config";
+import App from "@gluon/app";
+import Config from "@gluon/config";
 
 const process = require("process");
 
@@ -9,7 +8,6 @@ class WebWorker {
   private app: App;
   private workerId: number;
   private config: Config;
-  private server: http.Server;
 
   public async boot(workerId: number, config: Config) {
     this.workerId = workerId;
