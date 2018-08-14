@@ -9,6 +9,29 @@ import { toFixed } from "@gluon/utils/number";
 import { sum } from "@gluon/utils/lambda";
 
 export default class IterationsController extends Controller {
+  public async index(req: Request, res: Response) {
+    const projectId = req.params.projectId;
+    const apiEndpoint = `${this.baseRequestUrl}/projects/${projectId}/iterations`;
+    const response = await request.get(apiEndpoint, this.requestOptions);
+    const iterations = JSON.parse(response);
+    const attachments = iterations.map(this.formatIteration.bind(this));
+
+    res.json({ attachments });
+  }
+
+  public async show(req: Request, res: Response) {
+    const projectId = req.params.projectId;
+    const iterationId = req.params.iterationId === "current"
+      ? await this.getCurrentIterationId(projectId)
+      : parseInt(req.params.iterationId);
+    const apiEndpoint = `${this.baseRequestUrl}/projects/${projectId}/iterations/${iterationId}`;
+    const response = await request.get(apiEndpoint, this.requestOptions);
+    const iteration = JSON.parse(response);
+    const attachments = [this.formatIteration.bind(this)(iteration)];
+
+    res.json({ attachments });
+  }
+
   private get baseRequestUrl(): string {
     return Config.get("pivotal-tracker.apiEndpoint");
   }
@@ -100,28 +123,5 @@ export default class IterationsController extends Controller {
     const response = await request.get(apiEndpoint, this.requestOptions);
     const project = JSON.parse(response);
     return project.current_iteration_number;
-  }
-
-  public async index(req: Request, res: Response) {
-    const projectId = req.params.projectId;
-    const apiEndpoint = `${this.baseRequestUrl}/projects/${projectId}/iterations`;
-    const response = await request.get(apiEndpoint, this.requestOptions);
-    const iterations = JSON.parse(response);
-    const attachments = iterations.map(this.formatIteration.bind(this));
-
-    res.json({ attachments });
-  }
-
-  public async show(req: Request, res: Response) {
-    const projectId = req.params.projectId;
-    const iterationId = req.params.iterationId === "current"
-      ? await this.getCurrentIterationId(projectId)
-      : parseInt(req.params.iterationId);
-    const apiEndpoint = `${this.baseRequestUrl}/projects/${projectId}/iterations/${iterationId}`;
-    const response = await request.get(apiEndpoint, this.requestOptions);
-    const iteration = JSON.parse(response);
-    const attachments = [this.formatIteration.bind(this)(iteration)];
-
-    res.json({ attachments });
   }
 }
