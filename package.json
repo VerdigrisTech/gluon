@@ -12,6 +12,9 @@
   },
   "author": "Andrew Jo <andrew@verdigris.co>",
   "license": "BSD-2-Clause",
+  "engines": {
+    "node": "^8.11"
+  },
   "devDependencies": {
     "@types/chalk": "^2.2.0",
     "@types/express": "^4.16.0",
