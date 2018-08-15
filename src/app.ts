@@ -50,8 +50,13 @@ export default class App extends EventEmitter {
       if (typeof route.controller === "function") {
         routeMethod(route.path, route.controller);
       } else if (typeof route.controller === "string") {
+        const controllerName = route.controller.split(".")[0];
         const methodName = last(route.controller.split("."));
-        const controller = this.controller(route.path);
+        const inferredPathLevel = route.path.split("/").indexOf(controllerName);
+        const controllerPath = `${route.path.split("/")
+          .splice(0, inferredPathLevel)
+          .join("/")}/${controllerName}`;
+        const controller = this.controller(controllerPath);
         const controllerMethod = controller[methodName];
         routeMethod(route.path, controllerMethod.bind(controller));
       }
