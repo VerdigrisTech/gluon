@@ -22,17 +22,17 @@ export default class AnalyticsController extends Controller {
       title_link: `https://www.pivotaltracker.com/reports/v2/projects/${projectId}/overview`,
       fields: [
         {
-          title: "⏱ Median Cycle Time",
+          title: ":stopwatch: Median Cycle Time",
           value: duration(analytics.cycle_time).humanize(),
           short: true
         },
         {
-          title: "🐞 New Bugs Reported",
+          title: ":beetle: New Bugs Reported",
           value: `${analytics.bugs_created} ${pluralize("bug", analytics.bugs_created)}`,
           short: true
         },
         {
-          title: "🚫 Story Rejection Rate",
+          title: ":no_entry_sign: Story Rejection Rate",
           value: `${toFixed(analytics.rejection_rate)}%`,
           short: true
         }
