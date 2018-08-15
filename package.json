@@ -1,5 +1,5 @@
 {
-  "name": "gluon",
+  "name": "@verdigristech/gluon",
   "version": "1.0.0",
   "description": "Glues multiple webhooks",
   "main": "dist/server.js",
@@ -11,7 +11,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Andrew Jo <andrew@verdigris.co>",
-  "license": "UNLICENSED",
+  "license": "BSD-2-Clause",
   "devDependencies": {
     "@types/chalk": "^2.2.0",
     "@types/express": "^4.16.0",
