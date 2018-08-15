@@ -1,19 +1,27 @@
 import { Request, Response } from "express";
-import moment from "moment";
+import moment, { duration } from "moment";
 import pluralize from "pluralize";
 import request from "request-promise-native";
+import { quantile } from "simple-statistics";
 
 import Controller from "@gluon/controller";
 import Config from "@gluon/config";
 import { toFixed } from "@gluon/utils/number";
 import { sum } from "@gluon/utils/lambda";
 
+const cycleTimeTitle = {
+  "total_cycle_time": "total cycle time",
+  "started_time": "cycle time in started state",
+  "finished_time": "cycle time in finished state",
+  "delivered_time": "cycle time in delivered state",
+  "rejected_time": "cycle time in rejected state"
+};
+
 export default class IterationsController extends Controller {
   public async index(req: Request, res: Response) {
     const projectId = req.params.projectId;
     const apiEndpoint = `${this.baseRequestUrl}/projects/${projectId}/iterations`;
-    const response = await request.get(apiEndpoint, this.requestOptions);
-    const iterations = JSON.parse(response);
+    const iterations = await request.get(apiEndpoint, this.requestOptions);
     const attachments = iterations.map(this.formatIteration.bind(this));
 
     res.json({ attachments });
@@ -25,11 +33,58 @@ export default class IterationsController extends Controller {
       ? await this.getCurrentIterationId(projectId)
       : parseInt(req.params.iterationId);
     const apiEndpoint = `${this.baseRequestUrl}/projects/${projectId}/iterations/${iterationId}`;
-    const response = await request.get(apiEndpoint, this.requestOptions);
-    const iteration = JSON.parse(response);
+    const iteration = await request.get(apiEndpoint, this.requestOptions);
     const attachments = [this.formatIteration.bind(this)(iteration)];
 
     res.json({ attachments });
+  }
+
+  /**
+   * Returns stories that have cycle times in the given percentile.
+   */
+  public async cycleTimePercentiles(req: Request, res: Response) {
+    const format = req.query.format || "slack";
+    const projectId = req.params.projectId;
+    const iterationId = req.params.iterationId === "current"
+      ? await this.getCurrentIterationId(projectId)
+      : parseInt(req.params.iterationId);
+
+    const projectUrl = `${this.baseRequestUrl}/projects/${projectId}`;
+    const iterationApi = `${projectUrl}/iterations/${iterationId}?fields=:default,stories(:default,cycle_time_details)`;
+    const membershipsApi = `${projectUrl}/memberships`;
+    const [iteration, memberships] = await Promise.all([
+      request.get(iterationApi, this.requestOptions),
+      request.get(membershipsApi, this.requestOptions)
+    ]);
+
+    // Default to 95th percentile cycletime.
+    const p = parseFloat(req.query.percentile || "0.95");
+    const state = req.query.state || "total_cycle_time";
+    const millisAtP = quantile(iteration.stories.map(s => s.cycle_time_details[state]), p);
+    const topStories = iteration.stories.filter(s => s.cycle_time_details[state] >= millisAtP)
+      .sort((story1, story2) => {
+        return story2.cycle_time_details[state] - story1.cycle_time_details[state];
+      });
+
+      const attachment = {
+      title: `${pluralize("Story", topStories.length)} by ${cycleTimeTitle[state]}`,
+      title_link: `https://www.pivotaltracker.com/reports/v2/projects/${projectId}/cycle_time`,
+      text: `Stories listed below have cycle times above ${toFixed(p * 100)}ₜₕ percentile this sprint. If your story is listed here, considering updating the estimate to be higher or break it up into smaller stories.`,
+      color: req.query.color,
+      fields: topStories.map(s => {
+        return {
+          title: s.name,
+          value: `*Story ID:* <${s.url}|#${s.id}>\n*Cycle Time:* ${duration(s.cycle_time_details[state]).humanize()}\n*State:* ${s.current_state}`,
+          short: false
+        };
+      })
+    };
+
+    if (format === "standuply") {
+      res.json(attachment);
+    } else {
+      res.json({ attachments: [attachment] });
+    }
   }
 
   private get baseRequestUrl(): string {
@@ -40,7 +95,8 @@ export default class IterationsController extends Controller {
     return {
       headers: {
         "X-TrackerToken": Config.get("pivotal-tracker.apiToken")
-      }
+      },
+      json: true
     };
   }
 
@@ -119,9 +175,8 @@ export default class IterationsController extends Controller {
   }
 
   private async getCurrentIterationId(projectId): Promise<number> {
-    const apiEndpoint = `${this.baseRequestUrl}/projects/${projectId}`;
-    const response = await request.get(apiEndpoint, this.requestOptions);
-    const project = JSON.parse(response);
+    const apiEndpoint = `${this.baseRequestUrl}/projects/${projectId}?fields=current_iteration_number`;
+    const project = await request.get(apiEndpoint, this.requestOptions);
     return project.current_iteration_number;
   }
 }

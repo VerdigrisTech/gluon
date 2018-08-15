@@ -15,8 +15,7 @@ export default class AnalyticsController extends Controller {
       ? await this.getCurrentIterationId(projectId)
       : parseInt(req.params.iterationid);
     const apiEndpoint = `${this.baseRequestUrl}/projects/${projectId}/iterations/${iterationId}/analytics`;
-    const response = await request.get(apiEndpoint, this.requestOptions);
-    const analytics = JSON.parse(response);
+    const analytics = await request.get(apiEndpoint, this.requestOptions);
     const attachment = {
       title: "Analytics",
       title_link: `https://www.pivotaltracker.com/reports/v2/projects/${projectId}/overview`,
@@ -54,7 +53,8 @@ export default class AnalyticsController extends Controller {
     return {
       headers: {
         "X-TrackerToken": Config.get("pivotal-tracker.apiToken")
-      }
+      },
+      json: true
     };
   }
 

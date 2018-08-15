@@ -5,6 +5,7 @@ export default (route: Route) => {
     route.resources("projects", { only: ["index", "show"] }, route => {
       route.resources("iterations", { only: ["index", "show"] }, route => {
         route.get("analytics", "analytics.index");
+        route.get("cycle_time_percentiles", "iterations.cycleTimePercentiles");
       });
     });
   });
