@@ -1,17 +1,24 @@
 {
-  "name": "@verdigristech/gluon",
+  "name": "@verdigris/gluon",
   "version": "1.0.0",
   "description": "Glues multiple webhooks",
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist/*",
-    "devServer": "npm run clean && npm run build && npm run server",
-    "server": "node dist/server.js",
+    "devServer": "npm run clean && npm run build && npm start",
+    "server": "npm start",
+    "start": "node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Andrew Jo <andrew@verdigris.co>",
   "license": "BSD-2-Clause",
+  "bin": {
+    "gluon": "dist/bin/gluon.js"
+  },
+  "files": [
+    "dist"
+  ],
   "engines": {
     "node": "^8.11"
   },
