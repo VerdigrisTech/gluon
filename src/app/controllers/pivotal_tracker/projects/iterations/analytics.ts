@@ -9,6 +9,7 @@ import { toFixed } from "@gluon/utils/number";
 
 export default class AnalyticsController extends Controller {
   public async index(req: Request, res: Response) {
+    const format = req.query.format || "slack";
     const projectId = req.params.projectId;
     const iterationId = req.params.iterationId === "current"
       ? await this.getCurrentIterationId(projectId)
@@ -16,7 +17,7 @@ export default class AnalyticsController extends Controller {
     const apiEndpoint = `${this.baseRequestUrl}/projects/${projectId}/iterations/${iterationId}/analytics`;
     const response = await request.get(apiEndpoint, this.requestOptions);
     const analytics = JSON.parse(response);
-    const attachments = [{
+    const attachment = {
       title: "Analytics",
       title_link: `https://www.pivotaltracker.com/reports/v2/projects/${projectId}/overview`,
       fields: [
@@ -36,9 +37,14 @@ export default class AnalyticsController extends Controller {
           short: true
         }
       ]
-    }];
+    };
 
-    res.json({ attachments });
+    if (format === "standuply") {
+      res.json(attachment);
+    } else {
+      res.json({ attachments: [attachment] });
+    }
+
   }
 
   private get baseRequestUrl(): string {
