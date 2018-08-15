@@ -44,7 +44,6 @@ export default class AnalyticsController extends Controller {
     } else {
       res.json({ attachments: [attachment] });
     }
-
   }
 
   private get baseRequestUrl(): string {
@@ -60,7 +59,7 @@ export default class AnalyticsController extends Controller {
   }
 
   private async getCurrentIterationId(projectId): Promise<number> {
-    const apiEndpoint = `${this.baseRequestUrl}/projects/${projectId}`;
+    const apiEndpoint = `${this.baseRequestUrl}/projects/${projectId}?fields=current_iteration_number`;
     const response = await request.get(apiEndpoint, this.requestOptions);
     const project = JSON.parse(response);
     return project.current_iteration_number;
