@@ -8,7 +8,7 @@
     "clean": "rm -rf dist/*",
     "devServer": "npm run clean && npm run build && npm start",
     "server": "npm start",
-    "start": "ts-node src/server.js",
+    "start": "src/bin/gluon.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Andrew Jo <andrew@verdigris.co>",
