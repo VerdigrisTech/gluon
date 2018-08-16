@@ -1,8 +1,8 @@
 const tsConfigPaths = require("tsconfig-paths");
 
 tsConfigPaths.register({
-  baseUrl: "./",
-  paths: {"@gluon/*": ["./src/*", "./dist/*"]}
+  baseUrl: __dirname,
+  paths: {"@gluon/*": ["./*"]}
 });
 
 import * as os from "os";
