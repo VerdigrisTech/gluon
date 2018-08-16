@@ -18,6 +18,7 @@
     "gluon": "bin/gluon.js"
   },
   "files": [
+    "bin",
     "dist",
     "config",
     "src"
