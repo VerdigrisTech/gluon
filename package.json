@@ -1,6 +1,6 @@
 {
   "name": "@verdigris/gluon",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Glues multiple webhooks",
   "main": "src/server.ts",
   "scripts": {
