@@ -96,7 +96,7 @@ export default class IterationsController extends Controller {
     });
 
     const percentile = toFixed(p * 100);
-    let text = `Stories listed below have cycle times above ${percentile}ₜₕ percentile this sprint. If your story is listed here, considering updating the estimate to be higher or break it up into smaller stories.`;
+    let text = `Stories listed below have cycle times above ${percentile}ₜₕ percentile this sprint. If your story is listed here, considering updating the estimate to be higher or break it up into smaller stories.\n`;
 
     if (fields.length === 0) {
       text += "\n:tada: _Hooray! There are no";
