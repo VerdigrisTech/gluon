@@ -64,6 +64,12 @@ export default class IterationsController extends Controller {
       request.get(membershipsApi, this.requestOptions)
     ]);
 
+    const people = memberships.map(membership => membership.person)
+      .reduce((people: Map<number, string>, person) => {
+        people.set(person.id, person.name);
+        return people;
+      }, new Map());
+
     // Default to 95th percentile cycletime.
     const p = parseFloat(req.query.percentile || "0.95");
     const state = req.query.state;
@@ -75,14 +81,19 @@ export default class IterationsController extends Controller {
       });
 
     const fields = topStories.map(s => {
-        const description = s.description && s.description !== "" ? s.description : "_No story description_";
-        const titleEmoji = storyTypeEmojis[s.story_type];
-        return {
-          title: `${titleEmoji} ${s.name}`,
-          value: `${description}\n\n:id: *Story ID:* <${s.url}|#${s.id}>\n:stopwatch: *Cycle Time:* ${duration(s.cycle_time_details[cycleTimeState]).humanize()}\n:vertical_traffic_light: *State:* ${s.current_state}`,
-          short: false
-        };
-      });
+      const titleEmoji = storyTypeEmojis[s.story_type];
+      const description = s.description && s.description !== "" ? s.description : "_No story description_";
+      const owners = s.owner_ids.map(id => people.get(id)).join(", ");
+      let value = `${description}\n\n:id: *Story ID:* <${s.url}|#${s.id}>\n:stopwatch: *Cycle Time:* ${duration(s.cycle_time_details[cycleTimeState]).humanize()}`;
+      value += cycleTimeState === "total_cycle_time" ? `\n:vertical_traffic_light: *State:* ${s.current_state}` : "";
+      value += `\n:busts_in_silhouette: *Owners:* ${owners}`;
+
+      return {
+        title: `${titleEmoji} ${s.name}`,
+        value,
+        short: false
+      };
+    });
 
     const percentile = toFixed(p * 100);
     let text = `Stories listed below have cycle times above ${percentile}ₜₕ percentile this sprint. If your story is listed here, considering updating the estimate to be higher or break it up into smaller stories.`;
