@@ -59,22 +59,24 @@ export default class IterationsController extends Controller {
 
     // Default to 95th percentile cycletime.
     const p = parseFloat(req.query.percentile || "0.95");
-    const state = req.query.state || "total_cycle_time";
-    const millisAtP = quantile(iteration.stories.map(s => s.cycle_time_details[state]), p);
-    const topStories = iteration.stories.filter(s => s.cycle_time_details[state] >= millisAtP)
+    const state = req.query.state;
+    const cycleTimeState = state ? `${state}_time` : "total_cycle_time";
+    const millisAtP = quantile(iteration.stories.map(s => s.cycle_time_details[cycleTimeState]), p);
+    const topStories = iteration.stories.filter(s => s.current_state === state && s.cycle_time_details[cycleTimeState] >= millisAtP)
       .sort((story1, story2) => {
-        return story2.cycle_time_details[state] - story1.cycle_time_details[state];
+        return story2.cycle_time_details[cycleTimeState] - story1.cycle_time_details[cycleTimeState];
       });
 
-      const attachment = {
-      title: `${pluralize("Story", topStories.length)} by ${cycleTimeTitle[state]}`,
+    const attachment = {
+      title: `${pluralize("Story", topStories.length)} by ${cycleTimeTitle[cycleTimeState]}`,
       title_link: `https://www.pivotaltracker.com/reports/v2/projects/${projectId}/cycle_time`,
       text: `Stories listed below have cycle times above ${toFixed(p * 100)}ₜₕ percentile this sprint. If your story is listed here, considering updating the estimate to be higher or break it up into smaller stories.`,
       color: req.query.color,
       fields: topStories.map(s => {
+        const description = s.description && s.description !== "" ? s.description : "_No story description_";
         return {
           title: s.name,
-          value: `*Story ID:* <${s.url}|#${s.id}>\n*Cycle Time:* ${duration(s.cycle_time_details[state]).humanize()}\n*State:* ${s.current_state}`,
+          value: `${description}\n:id: *Story ID:* <${s.url}|#${s.id}>\n:stopwatch: *Cycle Time:* ${duration(s.cycle_time_details[cycleTimeState]).humanize()}\n:vertical_traffic_light: *State:* ${s.current_state}`,
           short: false
         };
       })
