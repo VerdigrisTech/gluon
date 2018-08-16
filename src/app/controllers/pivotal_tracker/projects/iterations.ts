@@ -22,7 +22,21 @@ const storyTypeEmojis = {
   "bug": ":beetle:",
   "chore": ":gear:",
   "release": ":checkered_flag:"
-}
+};
+
+const pointEstimateEmojis = [
+  ":zero:",
+  ":one:",
+  ":two:",
+  ":three:",
+  ":four:",
+  ":five:",
+  ":six:",
+  ":seven:",
+  ":eight:",
+  ":nine:",
+  ":keycap_ten:"
+];
 
 export default class IterationsController extends Controller {
   public async index(req: Request, res: Response) {
@@ -82,6 +96,7 @@ export default class IterationsController extends Controller {
 
     const fields = topStories.map(s => {
       const titleEmoji = storyTypeEmojis[s.story_type];
+      const pointEstimateEmoji = s.story_type === "feature" ? pointEstimateEmojis[s.estimate] : "";
       const description = s.description && s.description !== "" ? s.description : "_No story description_";
       const owners = s.owner_ids.map(id => people.get(id)).join(", ");
       let value = `${description}\n\n:id: *Story ID:* <${s.url}|#${s.id}>\n:stopwatch: *Cycle Time:* ${duration(s.cycle_time_details[cycleTimeState]).humanize()}`;
@@ -89,7 +104,7 @@ export default class IterationsController extends Controller {
       value += `\n:busts_in_silhouette: *Owners:* ${owners}`;
 
       return {
-        title: `${titleEmoji} ${s.name}`,
+        title: `${titleEmoji}${pointEstimateEmoji} ${s.name}`,
         value,
         short: false
       };
