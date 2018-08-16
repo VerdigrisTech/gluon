@@ -9,7 +9,14 @@ export default class Config {
     Config.config = initialConfig;
   }
 
-  public static async load(): Promise<Config> {
+  public static async load(): Promise<void>;
+  public static async load(path: string): Promise<void>;
+  public static async load(pathOrConfig?: any): Promise<void> {
+    if (typeof pathOrConfig === "object") {
+      Config.config = pathOrConfig;
+      return;
+    }
+
     const configPath = join(__dirname, "..", "config");
     const configFiles = await readdir(configPath);
 
@@ -21,13 +28,12 @@ export default class Config {
         };
       })
       .reduce((mergedConfig, configFile) => {
-        console.error(`Loading ${configFile.key} configuration...`);
         const config = {};
         config[configFile.key] = require(configFile.absoluteFile);
         return Object.assign(mergedConfig, config);
       }, {});
 
-    return new Config(allConfig);
+    Config.config = allConfig;
   }
 
   public static get(key: string): any {

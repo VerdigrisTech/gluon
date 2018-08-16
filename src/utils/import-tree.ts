@@ -4,7 +4,8 @@ import klaw from "klaw";
 import { obj } from "through2";
 
 const filterByJsFiles = obj(function (item, enc, next) {
-  if (extname(item.path) === ".js") {
+  const extension = extname(item.path);
+  if (extension === ".js" || extension === ".ts") {
     this.push(item);
   }
   next();

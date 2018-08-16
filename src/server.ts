@@ -1,9 +1,15 @@
-require("module-alias/register");
+const tsConfigPaths = require("tsconfig-paths");
+
+tsConfigPaths.register({
+  baseUrl: "./src",
+  paths: {"@gluon/*": ["./*"]}
+});
+
 import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
-import Config from "./config";
-import WebWorker from "./worker";
+import Config from "@gluon/config";
+import WebWorker from "@gluon/worker";
 import chalk from "chalk";
 import { once } from "./run";
 
@@ -57,11 +63,12 @@ async function bootMaster() {
 function bootWorker() {
   const webWorker = new WebWorker();
 
-  process.on('message', message => {
+  process.on('message', async message => {
     switch (message.type) {
       case "event":
         if (message.lifecycle === "boot") {
-          webWorker.boot(message.data.workerId, new Config(message.data.config));
+          await Config.load(message.data.config);
+          webWorker.boot(message.data.workerId);
         }
         break;
       default:

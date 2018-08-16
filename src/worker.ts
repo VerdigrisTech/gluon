@@ -1,18 +1,14 @@
 import chalk from "chalk";
 import App from "@gluon/app";
-import Config from "@gluon/config";
 
 const process = require("process");
 
 class WebWorker {
   private app: App;
   private workerId: number;
-  private config: Config;
 
-  public async boot(workerId: number, config: Config) {
+  public async boot(workerId: number) {
     this.workerId = workerId;
-    this.config = config;
-
     this.app = new App();
     this.app.listen();
     this.app.on("listening", () => {

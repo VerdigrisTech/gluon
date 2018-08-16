@@ -60,8 +60,7 @@ export default class AnalyticsController extends Controller {
 
   private async getCurrentIterationId(projectId): Promise<number> {
     const apiEndpoint = `${this.baseRequestUrl}/projects/${projectId}?fields=current_iteration_number`;
-    const response = await request.get(apiEndpoint, this.requestOptions);
-    const project = JSON.parse(response);
+    const project = await request.get(apiEndpoint, this.requestOptions);
     return project.current_iteration_number;
   }
 }
