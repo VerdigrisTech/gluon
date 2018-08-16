@@ -17,6 +17,13 @@ const cycleTimeTitle = {
   "rejected_time": "cycle time in rejected state"
 };
 
+const storyTypeEmojis = {
+  "feature": ":star:",
+  "bug": ":beetle:",
+  "chore": ":gear:",
+  "release": ":checkered_flag:"
+}
+
 export default class IterationsController extends Controller {
   public async index(req: Request, res: Response) {
     const projectId = req.params.projectId;
@@ -69,9 +76,10 @@ export default class IterationsController extends Controller {
 
     const fields = topStories.map(s => {
         const description = s.description && s.description !== "" ? s.description : "_No story description_";
+        const titleEmoji = storyTypeEmojis[s.story_type];
         return {
-          title: s.name,
-          value: `${description}\n:id: *Story ID:* <${s.url}|#${s.id}>\n:stopwatch: *Cycle Time:* ${duration(s.cycle_time_details[cycleTimeState]).humanize()}\n:vertical_traffic_light: *State:* ${s.current_state}`,
+          title: `${titleEmoji} ${s.name}`,
+          value: `${description}\n\n:id: *Story ID:* <${s.url}|#${s.id}>\n:stopwatch: *Cycle Time:* ${duration(s.cycle_time_details[cycleTimeState]).humanize()}\n:vertical_traffic_light: *State:* ${s.current_state}`,
           short: false
         };
       });
