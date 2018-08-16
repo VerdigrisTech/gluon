@@ -6,15 +6,15 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist/*",
-    "devServer": "npm run clean && npm run build && npm start",
+    "dev": "npm run clean && npm start",
     "server": "npm start",
-    "start": "src/bin/gluon.ts",
+    "start": "ts-node src/bin/gluon.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Andrew Jo <andrew@verdigris.co>",
   "license": "BSD-2-Clause",
   "bin": {
-    "gluon": "src/bin/gluon.ts"
+    "gluon": "dist/bin/gluon.js"
   },
   "files": [
     "dist",
@@ -37,7 +37,6 @@
     "@types/request-promise-native": "^1.0.15",
     "@types/through2": "^2.0.33",
     "ts-node": "^7.0.1",
-    "tsconfig-paths": "^3.5.0",
     "typescript": "^3.0.1"
   },
   "dependencies": {
@@ -54,6 +53,7 @@
     "request-promise-native": "^1.0.5",
     "simple-statistics": "^6.1.0",
     "through2": "^2.0.3",
+    "tsconfig-paths": "^3.5.0",
     "winston": "^3.0.0"
   },
   "_moduleAliases": {
