@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist/*",
-    "dev": "npm run clean && npm start",
+    "dev": "WEB_CONCURRENCY=1 nodemon --exec 'node --inspect=5858 -r ts-node/register src/server.ts'",
+    "prepublishOnly": "npm run build",
     "server": "npm start",
     "start": "ts-node src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -36,6 +37,7 @@
     "@types/request": "^2.47.1",
     "@types/request-promise-native": "^1.0.15",
     "@types/through2": "^2.0.33",
+    "nodemon": "^1.18.3",
     "ts-node": "^7.0.1",
     "typescript": "^3.0.1"
   },
