@@ -67,19 +67,30 @@ export default class IterationsController extends Controller {
         return story2.cycle_time_details[cycleTimeState] - story1.cycle_time_details[cycleTimeState];
       });
 
-    const attachment = {
-      title: `${pluralize("Story", topStories.length)} by ${cycleTimeTitle[cycleTimeState]}`,
-      title_link: `https://www.pivotaltracker.com/reports/v2/projects/${projectId}/cycle_time`,
-      text: `Stories listed below have cycle times above ${toFixed(p * 100)}ₜₕ percentile this sprint. If your story is listed here, considering updating the estimate to be higher or break it up into smaller stories.`,
-      color: req.query.color,
-      fields: topStories.map(s => {
+    const fields = topStories.map(s => {
         const description = s.description && s.description !== "" ? s.description : "_No story description_";
         return {
           title: s.name,
           value: `${description}\n:id: *Story ID:* <${s.url}|#${s.id}>\n:stopwatch: *Cycle Time:* ${duration(s.cycle_time_details[cycleTimeState]).humanize()}\n:vertical_traffic_light: *State:* ${s.current_state}`,
           short: false
         };
-      })
+      });
+
+    const percentile = toFixed(p * 100);
+    let text = `Stories listed below have cycle times above ${percentile}ₜₕ percentile this sprint. If your story is listed here, considering updating the estimate to be higher or break it up into smaller stories.`;
+
+    if (fields.length === 0) {
+      text += "\n:tada: _Hooray! There are no";
+      text += state ? ` ${state}` : "";
+      text += ` stories with cycle times above ${percentile}ₜₕ percentile as of today!_`;
+    }
+
+    const attachment = {
+      title: `${pluralize("Story", topStories.length)} by ${cycleTimeTitle[cycleTimeState]}`,
+      title_link: `https://www.pivotaltracker.com/reports/v2/projects/${projectId}/cycle_time`,
+      text,
+      color: fields.length > 0 ? req.query.color : "good",
+      fields
     };
 
     if (format === "standuply") {
