@@ -5,9 +5,7 @@ tsConfigPaths.register({
   paths: {"@gluon/*": ["./src/*", "./dist/*"]}
 });
 
-import * as fs from "fs-extra";
 import * as os from "os";
-import * as path from "path";
 import Config from "@gluon/config";
 import WebWorker from "@gluon/worker";
 import chalk from "chalk";
