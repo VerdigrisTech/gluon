@@ -15,7 +15,7 @@
   "author": "Andrew Jo <andrew@verdigris.co>",
   "license": "BSD-2-Clause",
   "bin": {
-    "gluon": "dist/bin/gluon.js"
+    "gluon": "bin/gluon.js"
   },
   "files": [
     "dist",
