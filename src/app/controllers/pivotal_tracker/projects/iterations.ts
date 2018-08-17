@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { isNil } from "lodash";
 import moment, { duration } from "moment";
 import pluralize from "pluralize";
 import request from "request-promise-native";
@@ -94,6 +95,7 @@ export default class IterationsController extends Controller {
       .sort((story1, story2) => {
         return story2.cycle_time_details[cycleTimeState] - story1.cycle_time_details[cycleTimeState];
       });
+    const count = topStories.length;
 
     const fields = topStories.map(s => {
       const titleEmoji = storyTypeEmojis[s.story_type];
@@ -112,7 +114,21 @@ export default class IterationsController extends Controller {
     });
 
     const percentile = toFixed(p * 100);
-    let text = `Stories listed below have cycle times above ${timeAtP} (${percentile}ₜₕ percentile) this sprint. If your story is listed here, considering updating the estimate to be higher or break it up into smaller stories.\n`;
+    let text;
+
+    if (isNil(state)) {
+      text = `The ${pluralize("story", topStories.length)} listed below ${pluralize("has", count)} total cycle time above ${timeAtP} (${percentile}ₜₕ percentile) this sprint.\n`;
+    } else {
+      text = `There ${pluralize("is", count)} ${count} ${pluralize("story", count)} that ${pluralize("has", topStories.length)} been sitting in ${state} state for over ${timeAtP} (${percentile}ₜₕ percentile) this sprint.`;
+    }
+
+    if (state === "started") {
+      text += " If your story is listed below, considering increasing the estimate or break up this story into smaller stories.\n ";
+    } else if (state === "finished") {
+      text += " If your story is listed below, check to ensure pull requests are merged and CI/CD pipeline is delivering releases properly.\n";
+    } else if (state === "delivered") {
+      text += " If your story is listed below, reach out to the Product Owner to review the acceptance criteria for this story.\n";
+    }
 
     if (fields.length === 0) {
       text += "\n:tada: _Hooray! There are no";
