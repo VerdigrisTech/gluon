@@ -89,6 +89,7 @@ export default class IterationsController extends Controller {
     const state = req.query.state;
     const cycleTimeState = state ? `${state}_time` : "total_cycle_time";
     const millisAtP = quantile(iteration.stories.map(s => s.cycle_time_details[cycleTimeState]), p);
+    const timeAtP = duration(millisAtP).humanize();
     const topStories = iteration.stories.filter(s => s.current_state === state && s.cycle_time_details[cycleTimeState] >= millisAtP)
       .sort((story1, story2) => {
         return story2.cycle_time_details[cycleTimeState] - story1.cycle_time_details[cycleTimeState];
@@ -111,7 +112,7 @@ export default class IterationsController extends Controller {
     });
 
     const percentile = toFixed(p * 100);
-    let text = `Stories listed below have cycle times above ${percentile}ₜₕ percentile this sprint. If your story is listed here, considering updating the estimate to be higher or break it up into smaller stories.\n`;
+    let text = `Stories listed below have cycle times above ${timeAtP} (${percentile}ₜₕ percentile) this sprint. If your story is listed here, considering updating the estimate to be higher or break it up into smaller stories.\n`;
 
     if (fields.length === 0) {
       text += "\n:tada: _Hooray! There are no";
