@@ -39,6 +39,22 @@ const pointEstimateEmojis = [
   ":keycap_ten:"
 ];
 
+const baseUrl = `${Config.get("pivotal-tracker.apiEndpoint")}`;
+
+function projectUrl(id: number);
+function projectUrl(id: string): string;
+function projectUrl(id: any): string {
+  return `${baseUrl}/projects/${id}`;
+}
+
+function iterationUrl(projectId: number, iterationId: string): string;
+function iterationUrl(projectId: number, iterationId: number): string;
+function iterationUrl(projectId: string, iterationId: number): string;
+function iterationUrl(projectId: string, iterationId: string): string;
+function iterationUrl(projectId: any, iterationId: any): string {
+  return `${projectUrl(projectId)}/iterations/${iterationId}`;
+}
+
 export default class IterationsController extends Controller {
   public async index(req: Request, res: Response) {
     const projectId = req.params.projectId;
@@ -50,15 +66,15 @@ export default class IterationsController extends Controller {
   }
 
   public async show(req: Request, res: Response) {
-    const projectId = req.params.projectId;
-    const iterationId = req.params.iterationId === "current"
-      ? await this.getCurrentIterationId(projectId)
-      : parseInt(req.params.iterationId);
-    const apiEndpoint = `${this.baseRequestUrl}/projects/${projectId}/iterations/${iterationId}`;
-    const iteration = await request.get(apiEndpoint, this.requestOptions);
-    const attachments = [this.formatIteration.bind(this)(iteration)];
+    const format = req.query.format || "slack";
+    const iteration = await this.iteration(req.params);
+    const attachment = this.formatIteration.bind(this)(iteration);
 
-    res.json({ attachments });
+    if (format === "standuply") {
+      res.json(attachment);
+    } else {
+      res.json({ attachments: [attachment] });
+    }
   }
 
   /**
@@ -67,15 +83,9 @@ export default class IterationsController extends Controller {
   public async cycleTimePercentiles(req: Request, res: Response) {
     const format = req.query.format || "slack";
     const projectId = req.params.projectId;
-    const iterationId = req.params.iterationId === "current"
-      ? await this.getCurrentIterationId(projectId)
-      : parseInt(req.params.iterationId);
-
-    const projectUrl = `${this.baseRequestUrl}/projects/${projectId}`;
-    const iterationApi = `${projectUrl}/iterations/${iterationId}?fields=:default,stories(:default,cycle_time_details)`;
-    const membershipsApi = `${projectUrl}/memberships`;
+    const membershipsApi = `${projectUrl(projectId)}/memberships`;
     const [iteration, memberships] = await Promise.all([
-      request.get(iterationApi, this.requestOptions),
+      this.iteration(req.params, { fields: ":default,stories(:default,cycle_time_details)" }),
       request.get(membershipsApi, this.requestOptions)
     ]);
 
@@ -162,6 +172,33 @@ export default class IterationsController extends Controller {
       },
       json: true
     };
+  }
+
+  private async iteration(
+    params: { projectId: string, iterationId: string },
+    query?: any
+  ): Promise<any> {
+    const { projectId, iterationId } = params;
+    const isCurrentIteration = iterationId === "current";
+
+    let qs = "?";
+    if (query instanceof Map) {
+      for (let [key, value] of query) {
+        qs += `${key}=${value}`;
+      }
+    } else if (typeof query === "string") {
+      qs = query;
+    } else if (query instanceof Object) {
+      qs += Object.getOwnPropertyNames(query)
+        .map(key => `${key}=${query[key]}`)
+        .join("&");
+    }
+
+    const url = isCurrentIteration
+      ? `${iterationUrl(projectId, await this.getCurrentIterationId(projectId))}${qs}`
+      : `${iterationUrl(projectId, iterationId)}${qs}`;
+
+    return await request.get(url, this.requestOptions);
   }
 
   private formatStories(stories) {
