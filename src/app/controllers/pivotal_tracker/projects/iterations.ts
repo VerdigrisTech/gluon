@@ -161,6 +161,16 @@ export default class IterationsController extends Controller {
     }
   }
 
+  public async sprintSummary(req: Request, res: Response) {
+    const iteration = await this.iteration(req.params);
+    const attachment = {
+      title: "Sprint Summary",
+      text: "",
+      fields: [
+      ]
+    };
+  }
+
   private get baseRequestUrl(): string {
     return Config.get("pivotal-tracker.apiEndpoint");
   }
