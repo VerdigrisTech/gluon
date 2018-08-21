@@ -1,0 +1,45 @@
+version: 2
+jobs:
+  publish_node_module:
+    docker:
+      - image: verdigristech/ci-node
+
+    working_directory: ~/gluon
+
+    steps:
+      - checkout
+      - setup_remote_docker
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies
+      - run:
+          name: Install dependencies
+          command: npm install
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+      - run:
+          name: Publish to NPM
+          command: npm publish
+      - run:
+          name: Login to Docker Cloud
+          command: echo "$DOCKER_PASS" | docker login -u $DOCKER_USER --password-stdin
+      - run:
+          name: Build Docker image
+          command: docker build --build-arg VERSION=${CIRCLE_TAG:1} -t verdigristech/gluon:${CIRCLE_TAG:1}
+      - run:
+          name: Tag Docker image
+          command: docker tag verdigristech/gluon:${CIRCLE_TAG:1} verdigristech/gluon:latest
+      - run:
+          name: Deploy to Docker Hub
+          command: |
+            docker push verdigristech/gluon:${CIRCLE_TAG:1}
+            docker push verdigristech/gluon:latest
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - publish_node_module
