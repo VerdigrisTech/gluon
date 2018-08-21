@@ -42,4 +42,5 @@ workflows:
   version: 2
   build_and_deploy:
     jobs:
-      - publish_node_module
+      - publish_node_module:
+          context: node.js package
