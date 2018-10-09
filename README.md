@@ -92,6 +92,13 @@ The push refers to repository [registry.heroku.com/my-heroku-app-name/web]
 $ heroku container:release --app my-heroku-app-name
 ```
 
+After deploying gluon for the first time on Heroku, be sure to update your app’s [config vars](https://devcenter.heroku.com/articles/config-vars):
+
+
+| Key                         | Value                                                                 |
+|:----------------------------|:----------------------------------------------------------------------|
+| `PIVOTAL_TRACKER_API_TOKEN` | Obtain from [Account Profile](https://www.pivotaltracker.com/profile) |
+
 ---
 
 © 2018 Verdigris Technologies Inc. All rights reserved.
