@@ -47,3 +47,6 @@ workflows:
     jobs:
       - publish_node_module:
           context: node.js package
+          filters:
+            branches:
+              only: master
